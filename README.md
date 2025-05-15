@@ -1,7 +1,14 @@
 # Call of Seminarkurs: Zomby Warfare
-The next and cleaner version of „The Hitter“
+
+# Namensvorschläge:
+
+* Call of Seminarkurs: Zomby Warfware
+* Ladehemmung 3: Reloaded
+* Counterstrike: To Offensive
+* American School Simulator
 
 # to-do:
+* Maus mit WASD kontrollieren?
 * Spielstartbutton und Seite erstellen
 * Exp drop
 * bei Levelup: 3 Buffs zur Auswahl gambeln (wie Achero)
