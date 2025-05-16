@@ -4,7 +4,7 @@
 
 * Call of Seminarkurs: Zomby Warfware
 * Ladehemmung 3: Reloaded
-* Counterstrike: To Offensive
+* Counterstrike: Too Offensive
 * American School Simulator
 
 # to-do:
