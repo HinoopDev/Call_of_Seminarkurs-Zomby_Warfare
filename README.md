@@ -3,7 +3,7 @@
 # Namensvorschläge:
 
 * Call of Seminarkurs: Zomby Warfware
-* Call of Seminarkurs: Mordern Schoolprojects
+* Call of Seminarkurs: Modern Schoolprojects
 * Ladehemmung 3: Reloaded
 * Counterstrike: Too Offensive
 * American School Simulator
