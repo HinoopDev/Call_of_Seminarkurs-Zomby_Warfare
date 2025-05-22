@@ -1,0 +1,19 @@
+###########################################################################################################
+        ------------------------------------ Warnung ------------------------------------
+
+Unser ESP Controler wurde so programmiert, dass dieser wie eine Bluetooth-Tastatur Tasteneingaben tätigt.
+Diese Tastertureingaben werden von unserem Spiel interpretiert. Wenn Sie den Controler jedoch anschließen,
+ohne dass unser Spiel geöffnet ist, kann es passieren, dass in einem geöffnetem Dokument die entsprechenden
+Buchstaben geschrieben werden.
+
+###########################################################################################################
+Sie können um unser Spiel umfassend zu testen daher Ihre normale Tastatur verwenden.
+
+Tastenbelegung:
+* "w" : hoch
+* "a" : links
+* "s" : runter
+* "d" : rechts
+* "f" : Menue verlassen; auswählen
+
+Der Knopf an unserem Controler gibt die Tasteneingabe "f"
