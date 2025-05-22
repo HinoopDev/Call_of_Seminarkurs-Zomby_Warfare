@@ -1,5 +1,6 @@
 # Call of Seminarkurs: Zomby Warfare
 
+
 # Namensvorschläge:
 
 * Call of Seminarkurs: Zomby Warfware
@@ -9,11 +10,21 @@
 * American School Simulator
 * Doomed Seminarkurs
 
+# Sprüche:
+
+* Manche Gegner sind buggy. Denk nicht drüber nach!
+* Beweg dich um zu überleben.
+* 0% KI, 100% Verzweiflung
+* Wir hätten was einfacheres machen sollen.
+* Wir brauchen 15 Punkte bitti ♥️.
+* TPA Original Production
+* Foge uns auf GitHub: 'HinoopDev' und 'Jojofallguy'
+
+
 # to-do:
+
 * Maus mit WASD kontrollieren?
 * Items?
-* Spielstartbutton und Seite erstellen
 * Exp drop
 * bei Levelup: 3 Buffs zur Auswahl gambeln (wie Achero)
-* hp-Bar umranden
 * Pause Screen
