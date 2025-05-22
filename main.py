@@ -195,6 +195,62 @@ class Player:
                 main_run = False
 
 
+class Menue:
+    def __init__(self, screen:pg.Surface):
+        self.screen = screen
+        self.bg = "#545454"
+
+        # erstellt alle benötigten Schriftarten
+        self.title_font = pg.font.SysFont("Arial", 50, True) 
+        self.title_font.set_underline(True)
+        self.main_font = pg.font.SysFont("Arial", 30, True)
+        self.second_font = pg.font.SysFont("Arial", 20, True)
+        self.ui_handler()
+
+    def ui_handler(self):
+        menue_run = True
+        while menue_run:                        # Menü loop
+            self.screen.fill(self.bg)
+            for event in pg.event.get():        # schließt das Menü, wenn der Knopf ("f") gedrückt wird
+                if event.type==pg.KEYDOWN and event.key==pg.K_f: menue_run = False
+            self.text()                         # zeichnet Menü abhängig unterschiedliche Sachen
+            pg.display.update()
+    
+    def text(self):...
+
+class StartMenue(Menue):
+    def __init__(self, screen):
+        # auf dem Startbildschirm werden Sprüche gezeigt
+        self.oldtime = time.time()      # Zeit vom letzten Spruch
+        self.cooldown = 30              # alle 30 Sekunden ein neuer Spruch
+        self.quots = [                  # Spruch liste
+            "Manche Gegner sind buggy. Denk nicht drüber nach!",
+            "Beweg dich um zu überleben.",
+            "0% KI, 100% Verzweiflung",
+            "Wir hätten was einfacheres machen sollen.",
+            "Wir brauchen 15 Punkte bitti ♥️.",
+            "TPA Original Production",
+            "Foge uns auf GitHub: 'HinoopDev' und 'Jojofallguy'"
+        ]
+        self.current_quot = self.quots[random.randint(0, len(self.quots)-1)]
+        super().__init__(screen)
+    
+    def text(self):
+        if time.time() - self.oldtime >= self.cooldown:
+            self.current_quot = self.quots[random.randint(0, len(self.quots)-1)]
+            self.oldtime = time.time()
+        quot = self.main_font.render(self.current_quot, False, "black")                              # zeichnet den Spruch aus den Screen
+        self.screen.blit(quot, ((self.screen.get_width() - quot.get_width()) / 2, self.screen.get_height() * 2 / 3 - quot.get_height() / 2))
+
+        title = self.title_font.render("Call of Seminarkurs: Zomby Warfare", False, "black")
+        self.screen.blit(title, ((self.screen.get_width() - title.get_width()) / 2, self.screen.get_height() / 3 - title.get_height()))
+
+        ui_tipp = self.second_font.render("Drücke den Knopf um das Spiel zu starten.", False, "#343434")
+        self.screen.blit(ui_tipp, ((self.screen.get_width() - ui_tipp.get_width()) / 2, self.screen.get_height() - ui_tipp.get_height() * 4))
+
+
+
+
 if __name__=="__main__":
     key_check={"w":False,"s":False,"a":False,"d":False}         # Eingabespeicher
     GRAS = "#44aa44"
@@ -209,35 +265,40 @@ if __name__=="__main__":
 
     pg.font.init()                                              # Initialisierung des Font Moduls
 
-    player = Player(screen)                                     # Erstellung des Spielers
-    shots:list[Shot] = []; enemies:list[Enemy] = []             # Erstellung der Schuss und Gegnerlisten
-    for _ in range(10): enemies.append(Enemy([random.randint(0, screen.get_width()), 
-                                              random.randint(0, screen.get_height())], 
-                                              screen, player))  # Erstellung der Gegner
+    while True:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
+                                # damit das Programm auch nach Beenden einer Runde nicht geschlossen wird
 
-    main_run = True
-    while main_run:                                             # Spielschleife
-        screen.fill(GRAS)       # Screen Zurücksetzung nach jedem Durchlauf
-        clock.tick(max_FPS)     # Begrenzung der maximalen FPS, damit das Spiel nicht bei anderer Hardware zu schnell geht
-        for event in pg.event.get():    # Screen Event handler, damit das Programm nicht freezed
-            if event.type==pg.QUIT: main_run = False                                # Überprüt ob das Spiel geschlossen weren soll
-            if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # Überprüft, welche Eingaben für die Spielerbewegung getätigt werden
-            if event.type==pg.KEYDOWN and event.key==pg.K_s: key_check["s"] = True  # und Speicherung in den Speicher
-            if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
-            if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
-            if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False   # 'Löscht' die Eingaben aus dem Speicher
-            if event.type==pg.KEYUP and event.key==pg.K_s: key_check["s"] = False
-            if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
-            if event.type==pg.KEYUP and event.key==pg.K_d: key_check["d"] = False
+        StartMenue(screen)      # Erstellt den Startbildschirm  vor Beginn jeder Runde
 
-        for enemy in enemies: enemy.move(); enemy.draw()    # Bewegt und zeichnet die Gegner
+        player = Player(screen)                                     # Erstellung des Spielers
+        shots:list[Shot] = []; enemies:list[Enemy] = []             # Erstellung der Schuss und Gegnerlisten
+        for _ in range(10): enemies.append(Enemy([random.randint(0, screen.get_width()), 
+                                                random.randint(0, screen.get_height())], 
+                                                screen, player))  # Erstellung der Gegner
 
-        for shot in shots: shot.draw(); shot.move()         # Bewegt und zeichnet die Schüsse 
-        # um Fehler zu vermeiden, wenn der Shot zerstört wurde, erst den Shot zeichnen und dann erst bewegen, da er dabei auch gelöscht werden kann
+        main_run = True
+        while main_run:                                             # Spielschleife
+            screen.fill(GRAS)       # Screen Zurücksetzung nach jedem Durchlauf
+            clock.tick(max_FPS)     # Begrenzung der maximalen FPS, damit das Spiel nicht bei anderer Hardware zu schnell geht
+            for event in pg.event.get():    # Screen Event handler, damit das Programm nicht freezed
+                if event.type==pg.QUIT: main_run = False                                # Überprüt ob das Spiel geschlossen weren soll
+                if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # Überprüft, welche Eingaben für die Spielerbewegung getätigt werden
+                if event.type==pg.KEYDOWN and event.key==pg.K_s: key_check["s"] = True  # und Speicherung in den Speicher
+                if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
+                if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
+                if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False   # 'Löscht' die Eingaben aus dem Speicher
+                if event.type==pg.KEYUP and event.key==pg.K_s: key_check["s"] = False
+                if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
+                if event.type==pg.KEYUP and event.key==pg.K_d: key_check["d"] = False
 
-        player.move()   # Spieler bewegen, zeichen und schießen lassen
-        player.draw()
-        player.shoot()
+            for enemy in enemies: enemy.move(); enemy.draw()    # Bewegt und zeichnet die Gegner
 
-        pg.display.update() # Alles im Grafikspeicher gespeichertes wird auf den Screen geladen
+            for shot in shots: shot.draw(); shot.move()         # Bewegt und zeichnet die Schüsse 
+            # um Fehler zu vermeiden, wenn der Shot zerstört wurde, erst den Shot zeichnen und dann erst bewegen, da er dabei auch gelöscht werden kann
+
+            player.move()   # Spieler bewegen, zeichen und schießen lassen
+            player.draw()
+            player.shoot()
+
+            pg.display.update() # Alles im Grafikspeicher gespeichertes wird auf den Screen geladen
 pg.display.quit()   # schließt den screen und beendet das Programm
