@@ -7,6 +7,7 @@
 * Call of Seminarkurs: Modern Schoolprojects
 * Ladehemmung 3: Reloaded
 * Counterstrike: Too Offensive
+* Counterstrike: To offend
 * American School Simulator
 * Doomed Seminarkurs
 
