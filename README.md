@@ -26,6 +26,5 @@
 
 * Maus mit WASD kontrollieren?
 * Items?
-* Exp drop
 * bei Levelup: 3 Buffs zur Auswahl gambeln (wie Achero)
 * Pause Screen
