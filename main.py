@@ -6,9 +6,13 @@ class Enemy:...
 class Menue:...
 class Level_up_Menue(Menue):...
 
+
+
+
 def collision(pos1:list[int], pos2:list[int], radius1:int, radius2:int)->bool: 
     """Überprüft, ob 2 Kreise kollidieren"""
     return math.sqrt((pos1[0]-pos2[0])**2 + (pos1[1]-pos2[1])**2) <= radius1 + radius2
+
 def collision2(pos1:list[int], pos2:list[int], radius1:int, width2:int, height2:int)->bool: 
     """Überprüft, ob 1 Rechteck und 1 Kreis kollidieren"""
     minx2 = pos2[0] - width2 / 2
@@ -24,6 +28,7 @@ def collision2(pos1:list[int], pos2:list[int], radius1:int, width2:int, height2:
 
 
 
+
 class Shot:
     def __init__(self, position:list[int], vx:int, vy:int, damage:int, screen:pg.Surface):
         '''vx und vy in %. vx und vy können auch negativ sein.'''
@@ -36,9 +41,11 @@ class Shot:
         self.damage = damage            # übernimmt den Spielerschaden
         self.screen = screen
     
+
     def draw(self):
         '''stellt den Schuss auf dem Screen dar''' 
         pg.draw.circle(self.screen, self.color, (self.pos),self.radius)
+
 
     def move(self):
         self.pos[0] += self.vx
@@ -55,6 +62,7 @@ class Shot:
 
 
 
+
 class Bar:
     def __init__(self, maximum:int, color:str, width:int = 50, height:int = 8, spacing:int = 1):
         self.color = color
@@ -65,6 +73,7 @@ class Bar:
             self.colom_width = self.width / maximum - self.spacing   # Breite eines Kästchens     # - spacing: für klare unterteilung
         except ZeroDivisionError: self.colom_width = self.width      # falls das Maximum == 0
 
+
     def draw(self, x:int, y:int, amount:float|int, screen:pg.Surface) -> tuple[int|float]:
         '''stellt die Bar auf dem Screen dar''' 
         x1 = x - (self.width) / 2       # definiert die Eckkoordinaten der Bar
@@ -73,16 +82,17 @@ class Bar:
         pg.draw.rect(screen, "black", pg.Rect(x1, y1, self.width, self.height))         # Bar outline
         x1 += self.spacing
         for _ in range(amount):
-            pg.draw.rect(screen, self.color, 
-                         pg.Rect(x1, y1 + self.spacing / 2, self.colom_width, self.height - self.spacing / 2))      # zeichnet die Kästchen
+            pg.draw.rect(screen, self.color, pg.Rect(x1, y1 + self.spacing / 2, self.colom_width, self.height - self.spacing / 2))      # zeichnet die Kästchen
             x1 += self.colom_width + self.spacing                                       # geht zum nächsten Kästchen
         return x1, y1
+
 
 
 class HealthBar(Bar):
     def __init__(self, max_health:int, width:int = 50, height:int = 8, spacing:int = 1):
         super().__init__(max_health, "red", width, height, spacing)
     
+
     def draw(self, x:int, y:int, health:float|int, screen:pg.Surface):
         '''stellt die Healthbar auf dem Screen dar''' 
         half = False                    # benötigt für halbe Leben
@@ -94,11 +104,14 @@ class HealthBar(Bar):
             pg.draw.rect(screen, self.color,  pg.Rect(x1, y1 + self.height / 2 - self.spacing / 2, self.colom_width, self.height / 2)) 
             x1 += self.spacing
 
+
         
 class XpBar(Bar):
     def __init__(self, needed_xp:int, width:int = 200, height:int = 16, spacing:int = 2):
         self.max = needed_xp
         super().__init__(needed_xp, "#00cc00", width, height, spacing)
+
+
 
 
 class Drop:
@@ -112,18 +125,23 @@ class Drop:
         self.width = 10 if type == 1 else 15
         self.screen = screen
     
+
     def draw(self):
         '''stellt den Drop auf dem Screen dar''' 
         pg.draw.rect(self.screen, self.color, pg.Rect(self.pos[0] - self.width / 2, self.pos[1] - self.width / 2, self.width, self.width))  #  zeichnet den Drop auf den Screen
+
 
     def pick_up(self, player:Player):
         if collision2(player.pos, self.pos, player.radius, self.width, self.width):     # überprüft ob es mit dem Spieler kollidiert
             player.xp[0] += self.value      # überträgt dem Spieler seine Erfahrungspunkte
             self.destroy()
 
+
     def destroy(self):
         drops.remove(self)
         del self
+
+
 
 
 class Enemy:
@@ -135,17 +153,21 @@ class Enemy:
         self.damage = 0.5
         self.health = 3
         self.max_health = 3
+
         self.last_hitted = time.time()                  # Zeit zum Überprüfen, ob dem Gegner Schaden zugefügt werden kann
         self.min_damage_cooldown = max_FPS / 240        # alle 0.25 sekunden kann dem Gegner geschadet werden
+
         self.screen = screen
         self.player = player
 
         self.healthbar = HealthBar(self.max_health)
 
+
     def draw(self): 
         '''stellt den Gegner auf dem Screen dar''' 
         self.healthbar.draw(*self.pos, self.health, self.screen)             # zeichnen der Healthbar auf de Screen
         pg.draw.circle(self.screen, self.color, self.pos, self.radius)       # zeichnen des Gegners auf den Screen
+
 
     def move(self):
         direction = {"0":False,"1":False,"2":False,"3":False}   # Speicher für Bewegungsrichtung
@@ -166,6 +188,7 @@ class Enemy:
         # Überprüfung ob es eine Kollision mid dem Soieler gibt. Wenn ja, füge ihm Schaden zu
         if collision(self.pos, self.player.pos, self.radius, self.player.radius): self.player.hit(self.damage)
         
+
     def hit(self, damage:float):
         if time.time() - self.last_hitted >= self.min_damage_cooldown:  # Überprüft, ob der Gegener getroffen werden kann
             self.last_hitted = time.time()                              # erneuert den letzten Trefferzeitpunkt
@@ -175,11 +198,13 @@ class Enemy:
                 self.drop()
                 del self
 
+
     def drop(self):
         number = random.randint(0, 10)
         if number > 9: drops.append(Drop(self.pos, 2, self.screen))     # 10% Wahrscheinlichkeit auf einen großen Drop
         elif number > 4: drops.append(Drop(self.pos, 1, self.screen))   # 50% Wahrscheinlichkeit auf einen kleinen Drop
                                                                         # 40% auf keinen Drop
+
 
 
 
@@ -189,22 +214,29 @@ class Player:
         self.xp = [0]                                                   # Die Erfahrungspunkte sind in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
         self.level = 0
         self.needed_xp_for_lvl = 0
+
         self.color = "#0000aa"
         self.radius = 20
+
         self.speed = 3
         self.diagonal_speed = self.speed * math.sqrt(2) / 2     # langsamere Teilgeschwindigkeiten für diagonal Laufen, da der Spieler sonst schneller wäre
+        
         self.health = 5
         self.max_health = 5
+
         self.damage = 1
         self.last_hitted = time.time()                  # Zeit zum Überprüfen, ob dem Spieler Schden zugefügt werden kann
         self.min_damage_cooldown = max_FPS / 120        # alle 0.5 Sekunden kann dem Spieler geschadet werden
         self.last_shot = time.time()                    # Zeit zum Überprüfen, ob der Spieler schießen kann
         self.min_shot_cooldown = 1                      # jede Sekunden kann der Spieler schießen
+
         self.screen = screen
+        
         self.healthbar = HealthBar(self.max_health, 200, 16,2)
         self.healthbar_pos = [140, 52]
         self.xpbar_pos = [140, 104]
         self.font = pg.font.SysFont("Arial", 20, True)          # erstellt eine Schriftart
+
 
     def draw(self): 
         '''stellt den Spieler auf dem Screen dar''' 
@@ -223,6 +255,7 @@ class Player:
         self.screen.blit(lvl_number, (90, 114))
 
         pg.draw.circle(self.screen, self.color, self.pos, self.radius, 4)      # zeichnen des Spielers auf den Screen
+
 
     def move(self):
         double_counter = 0                  # Speicher für mehrfache Eingaben
@@ -245,6 +278,7 @@ class Player:
         if self.pos[1]-self.radius <= 0: self.pos[1] += self.speed
         elif self.pos[1]+self.radius >= self.screen.get_height(): self.pos[1] -= self.speed
 
+
     def _find_nearest_enemy(self) -> Enemy:
         '''gibt den nähesten Gegner zum Spieler zurück'''
         closest:list[float, Enemy] = [99999, None]                  # Zwischenspeicher des nähesten Gegners und dessen Distanz
@@ -252,6 +286,7 @@ class Player:
             distance = math.sqrt((self.pos[0]-enemy.pos[0])**2 + (self.pos[1]-enemy.pos[1])**2) # brechnet die Distanz
             if distance < closest[0]: closest = [distance, enemy]   # falls der neue Gegner näher ist, übernimm ihn und seine Distanz
         return closest[1]   # gibt nur den Gegner, nicht die Distanz zurück
+
 
     def shoot(self):
         if time.time() - self.last_shot > self.min_shot_cooldown:   # Überprüft, ob der Spieler schießen kann
@@ -266,6 +301,7 @@ class Player:
             except ZeroDivisionError: prozent_y = 1
             shots.append(Shot(self.pos, prozent_x, prozent_y, self.damage, self.screen))    # Erstellung des Schusses
 
+
     def hit(self, damage:float):
         if time.time() - self.last_hitted >= self.min_damage_cooldown:  # Überprüft, ob der Spieler geschdet werden kann
             self.last_hitted = time.time()                              # erneuert den letzten Schadenszeitpunkt
@@ -273,6 +309,7 @@ class Player:
             if self.health <= 0:                                        # Überprüft, ob der Spieler tot ist. Wenn ja, beende die Spielschleife
                 global main_run
                 main_run = False
+
 
     def level_up(self):
         if self.xp[0] >= self.needed_xp_for_lvl:
@@ -282,6 +319,8 @@ class Player:
             self.needed_xp_for_lvl = 5 * math.sqrt(self.level * 4)   
                 # damit wird eine neue Anzahl benötigter Erfahrungspunkte für ein Aufleveln festgelegt
                 # damit die benötigte Erfahrungspunkteanzahl nicht zu schnell zu groß wird eine Wurzelfunktion
+
+
 
 
 class Menue:
@@ -296,6 +335,7 @@ class Menue:
         self.second_font = pg.font.SysFont("Arial", 20, True)
         self.ui_handler()
 
+
     def ui_handler(self):
         menue_run = True
         while menue_run:                        # Menü loop
@@ -304,16 +344,21 @@ class Menue:
                 if event.type==pg.KEYDOWN and event.key==pg.K_f: menue_run = False
             self.text()                         # zeichnet Menü abhängig unterschiedliche Sachen
             pg.display.update()
-    
+
+
     def text(self):...
+
+
 
 class StartMenue(Menue):
     def __init__(self, screen:pg.Surface, start:bool=True):
         # auf dem Startbildschirm werden Sprüche gezeigt
         self.oldtime = time.time()                      # Zeit vom letzten Spruch
         self.cooldown = 30                              # alle 30 Sekunden ein neuer Spruch
+
         self.img = pg.image.load("title_screen.png")    # speichert das Titelbild
         self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))  # skaliert das Bild auf die Größe des Bildschirms
+
         self.quots = [                                  # Spruch liste
             "Manche Gegner sind buggy. Denk nicht drüber nach!",
             "Beweg dich um zu überleben.",
@@ -328,6 +373,7 @@ class StartMenue(Menue):
         else: self.go_on_text = "Drücke den Knopf um das Spiel fortzusetzen"
         super().__init__(screen)
     
+
     def text(self):
         self.screen.blit(self.img, (0,0))               # stellt das Bild auf dem Screen dar
         if time.time() - self.oldtime >= self.cooldown:
@@ -342,14 +388,18 @@ class StartMenue(Menue):
         ui_tipp = self.second_font.render(self.go_on_text, False, "#343434")
         self.screen.blit(ui_tipp, ((self.screen.get_width() - ui_tipp.get_width()) / 2, self.screen.get_height() - ui_tipp.get_height() * 4))
 
+
+
 class Level_up_Menue(Menue):
     def __init__(self, screen):
         self.img = pg.image.load("level_up_screen.png")         # speichert das Titelbild
         self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))      # skaliert das Bild auf die Größe des Bildschirms
         super().__init__(screen)
 
+
     def text(self):
         self.screen.blit(self.img, (0,0))       # stellt das Bild auf dem Screen dar
+
 
 
 
@@ -382,6 +432,7 @@ if __name__=="__main__":
         while main_run:                     # Spielschleife
             screen.fill(GRAS)               # Screen Zurücksetzung nach jedem Durchlauf
             clock.tick(max_FPS)             # Begrenzung der maximalen FPS, damit das Spiel nicht bei anderer Hardware zu schnell geht
+
             for event in pg.event.get():    # Screen Event handler, damit das Programm nicht freezed
                 if event.type==pg.QUIT: main_run = False                                # Überprüt ob das Spiel geschlossen weren soll
                 if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # Überprüft, welche Eingaben für die Spielerbewegung getätigt werden
@@ -389,6 +440,7 @@ if __name__=="__main__":
                 if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
                 if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
                 if event.type==pg.KEYDOWN and event.key==pg.K_f: StartMenue(screen, False)  # Pause
+
                 if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False       # 'Löscht' die Eingaben aus dem Speicher
                 if event.type==pg.KEYUP and event.key==pg.K_s: key_check["s"] = False
                 if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
