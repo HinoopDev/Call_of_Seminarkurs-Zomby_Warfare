@@ -3,6 +3,8 @@ import math, time, random, pygame as pg
 # Diese classes sind nur für das Typing notwendig
 class Player:...
 class Enemy:...
+class Menue:...
+class Level_up_Menue(Menue):...
 
 def collision(pos1:list[int], pos2:list[int], radius1:int, radius2:int)->bool: 
     """Überprüft, ob 2 Kreise kollidieren"""
@@ -15,8 +17,8 @@ def collision2(pos1:list[int], pos2:list[int], radius1:int, width2:int, height2:
     testy = maxy2 = pos2[1] + height2 / 2
     if minx2 <= pos1[0] <= maxx2 and miny2 <= pos1[1] <= maxy2: iscollision = True  # überprüft ob der Kreis im Rechteck ist
     else:                                                                           # überprüft ob der Kreis das Rechteck berührt
-        if (minx2 + maxx2) / 2 > pos1[0]: testx = minx2   # der Kreis ist links
-        if (miny2 + maxy2) / 2 > pos1[1]: testy = miny2   # der Kreis ist oberhalb
+        if (minx2 + maxx2) / 2 > pos1[0]: testx = minx2   # der Kreis ist links sonst rechts
+        if (miny2 + maxy2) / 2 > pos1[1]: testy = miny2   # der Kreis ist oberhalb sonst unterhalb
         iscollision = math.sqrt((pos1[0] - testx) ** 2 + (pos1[1] - testy) ** 2) <= radius1
     return iscollision
 
@@ -53,32 +55,50 @@ class Shot:
 
 
 
-
-class HealthBar:
-    def __init__(self, max_health:int, width:int = 50, height:int = 8, spacing:int = 1):
-        self.width = width                              # Gesamtbreite
+class Bar:
+    def __init__(self, maximum:int, color:str, width:int = 50, height:int = 8, spacing:int = 1):
+        self.color = color
+        self.width = width      # Gesamtbreite
         self.height = height
         self.spacing = spacing
-        self.colom_width = self.width / max_health - self.spacing   # Breite eines "Lebens"     # - spacing: für klare unterteilung
+        try: 
+            self.colom_width = self.width / maximum - self.spacing   # Breite eines Kästchens     # - spacing: für klare unterteilung
+        except ZeroDivisionError: self.colom_width = self.width      # falls das Maximum == 0
 
-    def draw(self, x:int, y:int, health:float|int, screen:pg.Surface):
-        x1 = x - (self.width) / 2       # definiert die Eckkoordinaten der Healthbar
+    def draw(self, x:int, y:int, amount:float|int, screen:pg.Surface) -> tuple[int|float]:
+        '''stellt die Bar auf dem Screen dar''' 
+        x1 = x - (self.width) / 2       # definiert die Eckkoordinaten der Bar
         y1 = y - 30 - self.height / 2
+            
+        pg.draw.rect(screen, "black", pg.Rect(x1, y1, self.width, self.height))         # Bar outline
+        x1 += self.spacing
+        for _ in range(amount):
+            pg.draw.rect(screen, self.color, 
+                         pg.Rect(x1, y1 + self.spacing / 2, self.colom_width, self.height - self.spacing / 2))      # zeichnet die Kästchen
+            x1 += self.colom_width + self.spacing                                       # geht zum nächsten Kästchen
+        return x1, y1
+
+
+class HealthBar(Bar):
+    def __init__(self, max_health:int, width:int = 50, height:int = 8, spacing:int = 1):
+        super().__init__(max_health, "red", width, height, spacing)
+    
+    def draw(self, x:int, y:int, health:float|int, screen:pg.Surface):
+        '''stellt die Healthbar auf dem Screen dar''' 
         half = False                    # benötigt für halbe Leben
         if type(health) == float:
             health = int(health)
             half = True
-            
-        pg.draw.rect(screen, "black", pg.Rect(x1, y1, self.width, self.height))         # Healthbar outline
-        x1 += self.spacing
-        for i in range(health):
-            pg.draw.rect(screen, "red", 
-                         pg.Rect(x1, y1, self.colom_width, self.height))                # zeichnet die Kästchen
-            x1 += self.colom_width + self.spacing                                       # geht zum nächsten Kästchen
-        if half:                                                                                                # zeichnet halbes Kästchen
-            pg.draw.rect(screen, "red", 
-                         pg.Rect(x1, y1 + self.height / 2, self.colom_width, self.height / 2)) 
+        x1, y1 = super().draw(x, y, health, screen)
+        if half:                                                                        # zeichnet halbes Kästchen
+            pg.draw.rect(screen, self.color,  pg.Rect(x1, y1 + self.height / 2 - self.spacing / 2, self.colom_width, self.height / 2)) 
             x1 += self.spacing
+
+        
+class XpBar(Bar):
+    def __init__(self, needed_xp:int, width:int = 200, height:int = 16, spacing:int = 2):
+        self.max = needed_xp
+        super().__init__(needed_xp, "#00cc00", width, height, spacing)
 
 
 class Drop:
@@ -93,6 +113,7 @@ class Drop:
         self.screen = screen
     
     def draw(self):
+        '''stellt den Drop auf dem Screen dar''' 
         pg.draw.rect(self.screen, self.color, pg.Rect(self.pos[0] - self.width / 2, self.pos[1] - self.width / 2, self.width, self.width))  #  zeichnet den Drop auf den Screen
 
     def pick_up(self, player:Player):
@@ -122,6 +143,7 @@ class Enemy:
         self.healthbar = HealthBar(self.max_health)
 
     def draw(self): 
+        '''stellt den Gegner auf dem Screen dar''' 
         self.healthbar.draw(*self.pos, self.health, self.screen)             # zeichnen der Healthbar auf de Screen
         pg.draw.circle(self.screen, self.color, self.pos, self.radius)       # zeichnen des Gegners auf den Screen
 
@@ -165,7 +187,8 @@ class Player:
     def __init__(self, screen:pg.Surface):
         self.pos = [screen.get_width()//2, screen.get_height()//2]      # startposition == Screen Mitte
         self.xp = [0]                                                   # Die Erfahrungspunkte sind in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
-        self.level = 1
+        self.level = 0
+        self.needed_xp_for_lvl = 0
         self.color = "#0000aa"
         self.radius = 20
         self.speed = 3
@@ -178,14 +201,27 @@ class Player:
         self.last_shot = time.time()                    # Zeit zum Überprüfen, ob der Spieler schießen kann
         self.min_shot_cooldown = 1                      # jede Sekunden kann der Spieler schießen
         self.screen = screen
-        self.healthbar = HealthBar(self.max_health, 200, 16)
+        self.healthbar = HealthBar(self.max_health, 200, 16,2)
         self.healthbar_pos = [140, 52]
+        self.xpbar_pos = [140, 104]
         self.font = pg.font.SysFont("Arial", 20, True)          # erstellt eine Schriftart
 
     def draw(self): 
-        hp_label = self.font.render("HP: ", False, "black")                    # zeichnet die Schrift auf den Screen
+        '''stellt den Spieler auf dem Screen dar''' 
+        hp_label = self.font.render("HP: ", False, "black")                    # zeichnet die Schrift für die Healthbar auf den Screen
         self.screen.blit(hp_label, [10, 10])
         self.healthbar.draw(*self.healthbar_pos, self.health, self.screen)     # zeichnen der Healthbar auf den Screen
+
+        self.xpbar = XpBar(self.needed_xp_for_lvl)
+        xp_label = self.font.render("XP: ", False, "black")         # zeichnet die Schrift für die Xpbar auf den Screen
+        self.screen.blit(xp_label, [10, 62])
+        self.xpbar.draw(*self.xpbar_pos, self.xp[0], self.screen)   # zeichnen der Healthbar auf den Screen
+
+        lvl_label = self.font.render("Level: ", False, "black")     # zeichnet die Schrift für das Level auf den Screen
+        self.screen.blit(lvl_label, [10, 114])
+        lvl_number = self.font.render(f"{self.level}", False, "black")
+        self.screen.blit(lvl_number, (90, 114))
+
         pg.draw.circle(self.screen, self.color, self.pos, self.radius, 4)      # zeichnen des Spielers auf den Screen
 
     def move(self):
@@ -238,6 +274,15 @@ class Player:
                 global main_run
                 main_run = False
 
+    def level_up(self):
+        if self.xp[0] >= self.needed_xp_for_lvl:
+            self.xp[0] -= self.needed_xp_for_lvl
+            self.level += 1
+            Level_up_Menue(self.screen)     # Um die Belohnung zu bekommen
+            self.needed_xp_for_lvl = 5 * math.sqrt(self.level * 4)   
+                # damit wird eine neue Anzahl benötigter Erfahrungspunkte für ein Aufleveln festgelegt
+                # damit die benötigte Erfahrungspunkteanzahl nicht zu schnell zu groß wird eine Wurzelfunktion
+
 
 class Menue:
     def __init__(self, screen:pg.Surface):
@@ -263,12 +308,12 @@ class Menue:
     def text(self):...
 
 class StartMenue(Menue):
-    def __init__(self, screen:pg.Surface):
+    def __init__(self, screen:pg.Surface, start:bool=True):
         # auf dem Startbildschirm werden Sprüche gezeigt
         self.oldtime = time.time()                      # Zeit vom letzten Spruch
         self.cooldown = 30                              # alle 30 Sekunden ein neuer Spruch
         self.img = pg.image.load("title_screen.png")    # speichert das Titelbild
-        self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))  # scaliert das Bild auf die Grüße des Bildschirms
+        self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))  # skaliert das Bild auf die Größe des Bildschirms
         self.quots = [                                  # Spruch liste
             "Manche Gegner sind buggy. Denk nicht drüber nach!",
             "Beweg dich um zu überleben.",
@@ -279,10 +324,12 @@ class StartMenue(Menue):
             "Foge uns auf GitHub: 'HinoopDev' und 'Jojofallguy'"
         ]
         self.current_quot = self.quots[random.randint(0, len(self.quots)-1)]
+        if start: self.go_on_text = "Drücke den Knopf um das Spiel zu starten."
+        else: self.go_on_text = "Drücke den Knopf um das Spiel fortzusetzen"
         super().__init__(screen)
     
     def text(self):
-        self.screen.blit(self.img, (0,0))
+        self.screen.blit(self.img, (0,0))               # stellt das Bild auf dem Screen dar
         if time.time() - self.oldtime >= self.cooldown:
             self.current_quot = self.quots[random.randint(0, len(self.quots)-1)]
             self.oldtime = time.time()
@@ -292,9 +339,17 @@ class StartMenue(Menue):
         title = self.title_font.render("Call of Seminarkurs: Zomby Warfare", False, "black")
         self.screen.blit(title, ((self.screen.get_width() - title.get_width()) / 2, self.screen.get_height() / 3 - title.get_height()))
 
-        ui_tipp = self.second_font.render("Drücke den Knopf um das Spiel zu starten.", False, "#343434")
+        ui_tipp = self.second_font.render(self.go_on_text, False, "#343434")
         self.screen.blit(ui_tipp, ((self.screen.get_width() - ui_tipp.get_width()) / 2, self.screen.get_height() - ui_tipp.get_height() * 4))
 
+class Level_up_Menue(Menue):
+    def __init__(self, screen):
+        self.img = pg.image.load("level_up_screen.png")         # speichert das Titelbild
+        self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))      # skaliert das Bild auf die Größe des Bildschirms
+        super().__init__(screen)
+
+    def text(self):
+        self.screen.blit(self.img, (0,0))       # stellt das Bild auf dem Screen dar
 
 
 
@@ -333,7 +388,8 @@ if __name__=="__main__":
                 if event.type==pg.KEYDOWN and event.key==pg.K_s: key_check["s"] = True  # und Speicherung in den Speicher
                 if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
                 if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
-                if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False   # 'Löscht' die Eingaben aus dem Speicher
+                if event.type==pg.KEYDOWN and event.key==pg.K_f: StartMenue(screen, False)  # Pause
+                if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False       # 'Löscht' die Eingaben aus dem Speicher
                 if event.type==pg.KEYUP and event.key==pg.K_s: key_check["s"] = False
                 if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
                 if event.type==pg.KEYUP and event.key==pg.K_d: key_check["d"] = False
@@ -348,6 +404,7 @@ if __name__=="__main__":
             player.move()   # Spieler bewegen, zeichen und schießen lassen
             player.draw()
             player.shoot()
+            player.level_up()
 
-            pg.display.update() # Alles im Grafikspeicher gespeichertes wird auf den Screen geladen
-pg.display.quit()               # schließt den screen und beendet das Programm
+            pg.display.update() # alles im Grafikspeicher gespeichertes wird auf den Screen geladen
+pg.display.quit()               # schließt den Screen und beendet das Programm
