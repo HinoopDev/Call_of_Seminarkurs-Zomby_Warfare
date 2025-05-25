@@ -3,13 +3,15 @@
 
 # Namensvorschläge:
 
-* Call of Seminarkurs: Zomby Warfware
+* Call of Seminarkurs: Zomby Warfware        ✔️
 * Call of Seminarkurs: Modern Schoolprojects
+* Call of Seminarkurs: Modern Schoolshooting
 * Ladehemmung 3: Reloaded
 * Counterstrike: Too Offensive
 * Counterstrike: To offend
 * American School Simulator
 * Doomed Seminarkurs
+
 
 # Sprüche:
 
@@ -27,4 +29,3 @@
 * Maus mit WASD kontrollieren?
 * Items?
 * bei Levelup: 3 Buffs zur Auswahl gambeln (wie Achero)
-* Pause Screen
