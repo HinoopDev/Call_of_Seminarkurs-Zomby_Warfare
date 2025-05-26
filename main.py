@@ -165,10 +165,12 @@ class Enemy:
         self.pos = position
         self.color = "#aa0000"
         self.radius = 15
-        self.speed = 1
+        self.speed = random.randint(1, 2)
+        self.speed = 1.5 if self.speed == 2 else 1     # da sonst die Gegner deutlich schneller als der Spieler sind wodurch es sehr schwer wird zu überleben
         self.damage = 0.5
-        self.health = 3
-        self.max_health = 3
+        self.health = (3 * wave_count / 2) if self.speed == 1 else (2 * wave_count / 2)
+        if int(self.health) == self.health: self.max_health = self.health = int(self.health)
+        else: self.max_health = int(self.health) + 1
 
         self.last_hitted = time.time()                  # Zeit zum Überprüfen, ob dem Gegner Schaden zugefügt werden kann
         self.min_damage_cooldown = max_FPS / 240        # alle 0.25 sekunden kann dem Gegner geschadet werden
@@ -212,6 +214,7 @@ class Enemy:
             if self.health <= 0:                                        # Überprüft ob der Gegner tot ist. Wenn ja, lösche ihn
                 enemies.remove(self)
                 self.drop()
+                killed_enemies[0] += 1
                 del self
 
 
@@ -336,7 +339,7 @@ class Player:
         if self.xp[0] >= self.needed_xp_for_lvl:
             self.xp[0] -= self.needed_xp_for_lvl
             self.level += 1
-            Level_up_Menue(self.screen)     # Um die Belohnung zu bekommen
+            lvl_up_count[0] += 1
             self.needed_xp_for_lvl = 5 * math.sqrt(self.level * 4)   
                 # damit wird eine neue Anzahl benötigter Erfahrungspunkte für ein Aufleveln festgelegt
                 # damit die benötigte Erfahrungspunkteanzahl nicht zu schnell zu groß wird eine Wurzelfunktion
@@ -470,7 +473,7 @@ class Level_up_Menue(Menue):
         title = self.title_font.render("LEVEL UP", False, "black")
         self.screen.blit(title, ((self.screen.get_width() - title.get_width()) / 2, self.screen.get_height() / 4 - title.get_height()))
 
-        x = self.screen.get_width()//3          # stellt die Slots auf dem Dildschirm dar
+        x = self.screen.get_width()//3          # stellt die Slots auf dem Bildschirm dar
         for i in range(3):
             self.screen.blit(self.slot_img, (x, self.screen.get_height() / 3))  # stellt die Slots auf dem Bildschirm dar
             self.upgrade_hitbox.append((x, self.screen.get_height() / 3))
@@ -494,7 +497,14 @@ class Level_up_Menue(Menue):
 
 
     def choose_upgrade(self)-> tuple[str]:
-        upgrade = list(upgrades.keys())[random.randint(0, len(upgrades.keys()) - 1)]
+        # es gibt 6 Verbesserungen
+        number = random.randint(0, 69)
+        if   number < 15: upgrade = "maxHP +"       # 21.43% Chance
+        elif number < 30: upgrade = "Schaden +"     # 21.43% Chance
+        elif number < 45: upgrade = "Heilung"       # 21.43% Chance
+        elif number < 60: upgrade = "IAS"           # 21.43% Chance
+        elif number < 65: upgrade = "maxHP ++"      # 7.14% Chance
+        elif number < 70: upgrade = "Schaden ++"    # 7.14% Chance
         return upgrade, upgrades[upgrade]
 
 
@@ -585,7 +595,9 @@ if __name__=="__main__":
 
         wave_count = 1
         main_run = True
-        while main_run:                     # Spielschleife
+        killed_enemies = [0]        # Die Anzahl getöteter Gegner ist in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
+        lvl_up_count = [0]          # Die Anzahl an Level-Ups ist in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
+        while main_run:             # Spielschleife
 
             for _ in range(int(math.sqrt(wave_count * 4) * 5)):    # für die Gegeranzahl wird eine Wurzelfunktion verwendet, damit die Anzahl nicht zu groß wrid
                 enemies.append(Enemy([random.randint(0, screen.get_width()), random.randint(0, screen.get_height())], screen, player))  # Erstellung der Gegner
@@ -620,4 +632,10 @@ if __name__=="__main__":
                 player.level_up()
 
                 pg.display.update() # alles im Grafikspeicher gespeichertes wird auf den Bildschirm geladen
+
+            while lvl_up_count[0] != 0:     # Das Auflevelmenü kommt erst nach einer Welle, da es sonst das Spielgefühl stört
+                Level_up_Menue(screen)      # Um die Belohnung zu bekommen
+                lvl_up_count[0] -= 1
+
+            wave_count += 1
 pg.display.quit()               # schließt den Screen und beendet das Programm
