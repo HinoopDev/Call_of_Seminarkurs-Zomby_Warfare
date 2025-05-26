@@ -50,11 +50,11 @@ class Shot:
     def move(self):
         self.pos[0] += self.vx
         self.pos[1] += self.vy
-        # Überprüfung, ob der Schuss außerhalb des Screens ist. Wenn ja, wird er glöscht
+        # überprüfung, ob der Schuss außerhalb des Screens ist. Wenn ja, wird er glöscht
         if self.pos[0] <= 0 or self.pos[0] >= self.screen.get_width(): shots.remove(self); del self; return None
         if self.pos[1] <= 0 or self.pos[1] >= self.screen.get_height(): shots.remove(self); del self; return None
 
-        for enemy in enemies:   # Überprüft, ob Schuss und Gegner kollidieren. Wenn ja, wird dem Gegner Schaden zugefügt und der Schuss gelöscht
+        for enemy in enemies:   # überprüft, ob Schuss und Gegner kollidieren. Wenn ja, wird dem Gegner Schaden zugefügt und der Schuss gelöscht
             if collision(enemy.pos, self.pos, enemy.radius, self.radius):
                 enemy.hit(self.damage)
                 shots.remove(self); del self
@@ -64,7 +64,7 @@ class Shot:
 
 
 class Bar:
-    def __init__(self, maximum:int, color:str, width:int = 50, height:int = 8, spacing:int = 1):
+    def __init__(self, maximum:int, color:str, width:int, height:int, spacing:int):
         self.color = color
         self.width = width      # Gesamtbreite
         self.height = height
@@ -120,7 +120,7 @@ class Drop:
         type == 1: kleiner Drop; 1 Erfahrungspunkt
         type == 2: großer Drop; 5 Erfahrungspunkte'''
         self.pos = position[::]                 # kopiert die Inhalte des Gegnerpositionsliste, ohne dass die beiden Listen verknüpft werden
-        self.value = 1 if type == 1 else 5      # setzt die eigenschaften je nach Typ
+        self.value = 1 if type == 1 else 5      # setzt die Eigenschaften je nach Typ
         self.color = "#00ff00" if type == 1 else "#008800"
         self.width = 10 if type == 1 else 15
         self.screen = screen
@@ -165,7 +165,7 @@ class Enemy:
 
     def draw(self): 
         '''stellt den Gegner auf dem Screen dar''' 
-        self.healthbar.draw(*self.pos, self.health, self.screen)             # zeichnen der Healthbar auf de Screen
+        self.healthbar.draw(*self.pos, self.health, self.screen)             # zeichnen der Healthbar auf den Screen
         pg.draw.circle(self.screen, self.color, self.pos, self.radius)       # zeichnen des Gegners auf den Screen
 
 
@@ -185,15 +185,15 @@ class Enemy:
                 if direction["3"]: self.pos[1] += self.speed
                 break
         
-        # Überprüfung ob es eine Kollision mid dem Soieler gibt. Wenn ja, füge ihm Schaden zu
+        # Überprüfung ob es eine Kollision mid dem Spieler gibt. Wenn ja, füge ihm Schaden zu
         if collision(self.pos, self.player.pos, self.radius, self.player.radius): self.player.hit(self.damage)
         
 
     def hit(self, damage:float):
-        if time.time() - self.last_hitted >= self.min_damage_cooldown:  # Überprüft, ob der Gegener getroffen werden kann
+        if time.time() - self.last_hitted >= self.min_damage_cooldown:  # überprüft, ob der Gegener getroffen werden kann
             self.last_hitted = time.time()                              # erneuert den letzten Trefferzeitpunkt
             self.health -= damage
-            if self.health <= 0:                                        # Überprüft ob der Gegner tot ist. Wenn ja, lösche ihn
+            if self.health <= 0:                                        # überprüft ob der Gegner tot ist. Wenn ja, lösche ihn
                 enemies.remove(self)
                 self.drop()
                 del self
@@ -211,7 +211,7 @@ class Enemy:
 class Player:
     def __init__(self, screen:pg.Surface):
         self.pos = [screen.get_width()//2, screen.get_height()//2]      # startposition == Screen Mitte
-        self.xp = [0]                                                   # Die Erfahrungspunkte sind in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
+        self.xp = [0]                                                   # die Erfahrungspunkte sind in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
         self.level = 0
         self.needed_xp_for_lvl = 0
 
@@ -284,15 +284,15 @@ class Player:
         closest:list[float, Enemy] = [99999, None]                  # Zwischenspeicher des nähesten Gegners und dessen Distanz
         for enemy in enemies:
             distance = math.sqrt((self.pos[0]-enemy.pos[0])**2 + (self.pos[1]-enemy.pos[1])**2) # brechnet die Distanz
-            if distance < closest[0]: closest = [distance, enemy]   # falls der neue Gegner näher ist, übernimm ihn und seine Distanz
+            if distance < closest[0]: closest = [distance, enemy]   # falls der neue Gegner näher ist, übernimmt ihn und seine Distanz
         return closest[1]   # gibt nur den Gegner, nicht die Distanz zurück
 
 
     def shoot(self):
-        if time.time() - self.last_shot > self.min_shot_cooldown:   # Überprüft, ob der Spieler schießen kann
+        if time.time() - self.last_shot > self.min_shot_cooldown:   # überprüft, ob der Spieler schießen kann
             self.last_shot = time.time()                            # erneuert den letzten Schusszeitpunkt
             nearest = self._find_nearest_enemy()                    # Erlangen des nahesten Gegners als Ziel
-            if nearest == None: return None                         # Überprüft, ob es noch Gegner gibt. Wenn nicht, breche die Funktion ab
+            if nearest == None: return None                         # überprüft, ob es noch Gegner gibt. Wenn nicht, breche die Funktion ab
             dx = nearest.pos[0] - self.pos[0]                       # Betimmung der x und y Differenz
             dy = nearest.pos[1] - self.pos[1]
             try: prozent_x = dx / (abs(dx) + abs(dy))               # Bestimmung der x und y Anteile 
@@ -303,10 +303,10 @@ class Player:
 
 
     def hit(self, damage:float):
-        if time.time() - self.last_hitted >= self.min_damage_cooldown:  # Überprüft, ob der Spieler geschdet werden kann
+        if time.time() - self.last_hitted >= self.min_damage_cooldown:  # überprüft, ob der Spieler geschadet werden kann
             self.last_hitted = time.time()                              # erneuert den letzten Schadenszeitpunkt
             self.health -= damage
-            if self.health <= 0:                                        # Überprüft, ob der Spieler tot ist. Wenn ja, beende die Spielschleife
+            if self.health <= 0:                                        # überprüft, ob der Spieler tot ist. Wenn ja, beende die Spielschleife
                 global main_run
                 main_run = False
 
@@ -315,7 +315,7 @@ class Player:
         if self.xp[0] >= self.needed_xp_for_lvl:
             self.xp[0] -= self.needed_xp_for_lvl
             self.level += 1
-            Level_up_Menue(self.screen)     # Um die Belohnung zu bekommen
+            Level_up_Menue(self.screen)     # um die Belohnung zu bekommen
             self.needed_xp_for_lvl = 5 * math.sqrt(self.level * 4)   
                 # damit wird eine neue Anzahl benötigter Erfahrungspunkte für ein Aufleveln festgelegt
                 # damit die benötigte Erfahrungspunkteanzahl nicht zu schnell zu groß wird eine Wurzelfunktion
@@ -379,7 +379,7 @@ class StartMenue(Menue):
         if time.time() - self.oldtime >= self.cooldown:
             self.current_quot = self.quots[random.randint(0, len(self.quots)-1)]
             self.oldtime = time.time()
-        quot = self.main_font.render(self.current_quot, False, "black")                              # zeichnet den Spruch aus den Screen
+        quot = self.main_font.render(self.current_quot, False, "black")                              # zeichnet den Spruch auf den Screen
         self.screen.blit(quot, ((self.screen.get_width() - quot.get_width()) / 2, self.screen.get_height() * 2 / 3 - quot.get_height() / 2))
 
         title = self.title_font.render("Call of Seminarkurs: Zomby Warfare", False, "black")
@@ -420,7 +420,7 @@ if __name__=="__main__":
     while True:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
                                 # damit das Programm auch nach Beenden einer Runde nicht geschlossen wird
 
-        StartMenue(screen)      # Erstellt den Startbildschirm  vor Beginn jeder Runde
+        StartMenue(screen)      # erstellt den Startbildschirm  vor Beginn jeder Runde
 
         player = Player(screen)                                                 # Erstellung des Spielers
         shots:list[Shot] = []; enemies:list[Enemy] = [];drops:list[Drop] = []   # Erstellung der Schuss-, Gegner- und Droplisten 
@@ -434,8 +434,8 @@ if __name__=="__main__":
             clock.tick(max_FPS)             # Begrenzung der maximalen FPS, damit das Spiel nicht bei anderer Hardware zu schnell geht
 
             for event in pg.event.get():    # Screen Event handler, damit das Programm nicht freezed
-                if event.type==pg.QUIT: main_run = False                                # Überprüt ob das Spiel geschlossen weren soll
-                if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # Überprüft, welche Eingaben für die Spielerbewegung getätigt werden
+                if event.type==pg.QUIT: main_run = False                                # überprüt ob das Spiel geschlossen weren soll
+                if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # überprüft, welche Eingaben für die Spielerbewegung getätigt werden
                 if event.type==pg.KEYDOWN and event.key==pg.K_s: key_check["s"] = True  # und Speicherung in den Speicher
                 if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
                 if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
@@ -446,9 +446,9 @@ if __name__=="__main__":
                 if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
                 if event.type==pg.KEYUP and event.key==pg.K_d: key_check["d"] = False
 
-            for enemy in enemies: enemy.move(); enemy.draw()    # Bewegt und zeichnet die Gegner
+            for enemy in enemies: enemy.move(); enemy.draw()    # bewegt und zeichnet die Gegner
 
-            for shot in shots: shot.draw(); shot.move()         # Bewegt und zeichnet die Schüsse 
+            for shot in shots: shot.draw(); shot.move()         # bewegt und zeichnet die Schüsse 
             # um Fehler zu vermeiden, wenn der Shot zerstört wurde, erst den Shot zeichnen und dann erst bewegen, da er dabei auch gelöscht werden kann
 
             for drop in drops: drop.draw(); drop.pick_up(player)    # zeichnet den Drop und lässt ihn aufsammeln
