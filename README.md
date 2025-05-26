@@ -26,6 +26,6 @@
 
 # to-do:
 
-* Maus mit WASD kontrollieren?
 * Items?
-* bei Levelup: 3 Buffs zur Auswahl gambeln (wie Achero)
+* Pixelart für Upgrades
+* multishot Startposition fixen
