@@ -358,9 +358,10 @@ class Player:
 
 
 class Menue:
-    def __init__(self, screen:pg.Surface):
+    def __init__(self, screen:pg.Surface, sleeping_time:int):
         self.screen = screen
         self.bg = "#545454"
+        self.sleep = sleeping_time
         
         self.key_check={"w":False,"s":False,"a":False,"d":False}    # Eingabespeicher
 
@@ -377,6 +378,9 @@ class Menue:
 
 
     def ui_handler(self):
+        self.text()
+        pg.display.update()
+        time.sleep(self.sleep)                  # verhindert, dass der Spieler den Knopf doppelt drückt oder gedrückt hält und damit eine neue Runde startet
         self.menue_run = True
         while self.menue_run:                   # Menü loop
             self.screen.fill(self.bg)
@@ -398,7 +402,6 @@ class Menue:
 
     def pressed(self): self.menue_run = False   # beendet die Menüschleife
     def move(self):...
-
     def text(self):...
 
 
@@ -419,12 +422,14 @@ class StartMenue(Menue):
             "Wir hätten was einfacheres machen sollen.",
             "Wir brauchen 15 Punkte bitti ♥️.",
             "TPA Original Production",
-            "Foge uns auf GitHub: 'HinoopDev' und 'Jojofallguy'"
+            "Folg uns auf GitHub: 'HinoopDev' und 'Jojofallguy'",
+            "They eat our dogs.",
+            "Holt mich hier raus."
         ]
         self.current_quot = self.quots[random.randint(0, len(self.quots)-1)]
         if start: self.go_on_text = "Drücke den Knopf um das Spiel zu starten."
         else: self.go_on_text = "Drücke den Knopf um das Spiel fortzusetzen."
-        super().__init__(screen)
+        super().__init__(screen, 5 if start else 0)
     
 
     def text(self):
@@ -459,7 +464,7 @@ class Level_up_Menue(Menue):
         self.slot_img = pg.image.load("slot.png")    # speichert das Slotbild
         self.slot_img = pg.transform.scale(self.slot_img, (screen.get_width() / 9, screen.get_height() / 2))    # skaliert das Bild entsprechend der Größe des Bildschirms
 
-        super().__init__(screen)
+        super().__init__(screen, 0)
 
         pg.mouse.set_visible(False)             # versteckt den Cursor
 
@@ -542,7 +547,7 @@ class Game_over_Menue(Menue):
         self.img = pg.image.load("game_over_screen.png")        # speichert das Titelbild
         self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))      # skaliert das Bild auf die Größe des Bildschirms
 
-        super().__init__(screen)
+        super().__init__(screen, 0)
     
 
     def text(self):
@@ -568,7 +573,7 @@ if __name__=="__main__":
                 "Schaden +": ["Fügt 0.5 mehr","Schaden den","Gegnern zu."],
                 "Schaden ++": ["Fügt 1 mehr","Schaden den","Gegnern zu."],
 #                "+1 Schuss": ["Es wird 1","Schuss mehr","abgefeuert."],        # dabei erscheinen die Schüsse willkürlich
-                "Heilung": ["Regeneriert",r"deine Leben."],
+                "Heilung": ["Regeneriert", "deine Leben."],
                 "IAS": ["Erhöht die","Angriffs-","geschwindigkeit"]}
     key_check = {"w":False,"s":False,"a":False,"d":False}       # Eingabespeicher
     GRAS = "#44aa44"
