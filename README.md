@@ -25,11 +25,11 @@
 
 # Bibliotheken für ESP32:
 
-*[BLE Keyboard](https://github.com/T-vK/ESP32-BLE-Keyboard)
-*[Neopixel for WS2812B](https://github.com/adafruit/Adafruit_NeoPixel)
-*[MPU6050](https://github.com/adafruit/Adafruit_MPU6050)
-*[SSD1306](https://github.com/adafruit/Adafruit_SSD1306)
-*[GFX](https://github.com/adafruit/Adafruit-GFX-Library)
+* [BLE Keyboard](https://github.com/T-vK/ESP32-BLE-Keyboard)
+* [Neopixel for WS2812B](https://github.com/adafruit/Adafruit_NeoPixel)
+* [MPU6050](https://github.com/adafruit/Adafruit_MPU6050)
+* [SSD1306](https://github.com/adafruit/Adafruit_SSD1306)
+* [GFX](https://github.com/adafruit/Adafruit-GFX-Library)
 
 # to-do:
 
