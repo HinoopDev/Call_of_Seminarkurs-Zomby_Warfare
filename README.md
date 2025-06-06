@@ -5,11 +5,11 @@
 
 * Call of Seminarkurs: Zomby Warfware        ✔️
 * Call of Seminarkurs: Modern Schoolprojects
-* Call of Seminarkurs: Modern Schoolshooting
+* Call of Seminarkurs: Modern Schoolshooting (Rausnehmene falls link für die Lehrer)
 * Ladehemmung 3: Reloaded
 * Counterstrike: Too Offensive
 * Counterstrike: To offend
-* American School Simulator
+* American School Simulator (rausnehmen falls link für die Lehrer)
 * Doomed Seminarkurs
 
 
