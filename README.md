@@ -31,6 +31,9 @@
 * [SSD1306](https://github.com/adafruit/Adafruit_SSD1306)
 * [GFX](https://github.com/adafruit/Adafruit-GFX-Library)
 
+# Bibliothek für Python:
+* [Pygame](https://github.com/pygame/pygame)
+
 # to-do:
 
 * Items?
