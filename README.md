@@ -18,8 +18,8 @@
 * Manche Gegner sind buggy. Denk nicht drüber nach!
 * Beweg dich um zu überleben.
 * 0% KI, 100% Verzweiflung
-* Wir hätten was einfacheres machen sollen.
-* Wir brauchen 15 Punkte bitti ♥️.
+* Wir hätten was einfacheres machen sollen. (rausnehmen)
+* Wir brauchen 15 Punkte bitti ♥️. (rausnehmen)
 * TPA Original Production
 * Foge uns auf GitHub: 'HinoopDev' und 'Jojofallguy'
 
