@@ -1,18 +1,6 @@
 # Call of Seminarkurs: Zomby Warfare
 
 
-# Namensvorschläge:
-
-* Call of Seminarkurs: Zomby Warfware        ✔️
-* Call of Seminarkurs: Modern Schoolprojects
-* Call of Seminarkurs: Modern Schoolshooting (Rausnehmene falls link für die Lehrer)
-* Ladehemmung 3: Reloaded
-* Counterstrike: Too Offensive
-* Counterstrike: To offend
-* American School Simulator (rausnehmen falls link für die Lehrer)
-* Doomed Seminarkurs
-
-
 # Sprüche:
 
 * Manche Gegner sind buggy. Denk nicht drüber nach!
@@ -33,9 +21,3 @@
 
 # Bibliothek für Python:
 * [Pygame](https://github.com/pygame/pygame)
-
-# to-do:
-
-* Items?
-* Pixelart für Upgrades
-* multishot Startposition fixen
