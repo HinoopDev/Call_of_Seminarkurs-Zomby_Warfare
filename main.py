@@ -1,4 +1,4 @@
-import math, time, random, threading, pygame as pg 
+import math, time, random, pygame as pg 
 
 # Diese classes sind nur für das Typing notwendig
 class Player:...
@@ -9,10 +9,9 @@ class Game_over_Menue(Menue):...
 
 
 
-def play_sound(file_name:str):
+def play_sound(file_name:str, volume:float=0.1):
     """Spielt einen Geräusch ab"""
-    print(file_name)
-    pg.mixer.Channel(1).set_volume(0.1)
+    pg.mixer.Channel(1).set_volume(volume)
     pg.mixer.Channel(1).play(pg.mixer.Sound(file_name))
     
 
@@ -55,7 +54,7 @@ class Shot:
         '''vx und vy in %. vx und vy können auch negativ sein.'''
         self.pos = position[::]         # kopiert die Inhalte des Spielerpositionsliste, ohne dass die beiden Listen verknüpft werden
         self.color = "#555555"
-        self.radius = 3
+        self.radius = 4
         self.speed = Shot.speed
         self.vx = self.speed * vx       # bestimmt die Geschwindigkeit des Schusses in x und y Richtung
         self.vy = self.speed * vy
@@ -143,14 +142,16 @@ class Drop:
         type == 2: großer Drop; 5 Erfahrungspunkte'''
         self.pos = position[::]                 # kopiert die Inhalte des Gegnerpositionsliste, ohne dass die beiden Listen verknüpft werden
         self.value = 1 if type == 1 else 5      # setzt die eigenschaften je nach Typ
-        self.color = "#00ff00" if type == 1 else "#008800"
+        self.sprite = pg.image.load("xp_small.png" if type == 1 else "xp.png")              # lädt die Entsprechende Figur
+        self.sprite = pg.transform.scale(self.sprite, (20,20) if type == 1 else (25,25))    # skalliert die entsprechende Figur
         self.width = 10 if type == 1 else 15
         self.screen = screen
     
 
     def draw(self):
         '''stellt den Drop auf dem Screen dar''' 
-        pg.draw.rect(self.screen, self.color, pg.Rect(self.pos[0] - self.width / 2, self.pos[1] - self.width / 2, self.width, self.width))  #  zeichnet den Drop auf den Screen
+        # pg.draw.rect(self.screen, self.color, pg.Rect(self.pos[0] - self.width / 2, self.pos[1] - self.width / 2, self.width, self.width))  #  zeichnet den Drop auf den Screen
+        self.screen.blit(self.sprite, [self.pos[0]-self.sprite.get_width()/2, self.pos[1]-self.sprite.get_height()/2]) #  zeichnet den Drop auf den Screen
 
 
     def pick_up(self, player:Player):
@@ -169,7 +170,6 @@ class Drop:
 class Enemy:
     def __init__(self, position:list[int], screen:pg.Surface, player:Player):
         self.pos = position
-        self.color = "#aa0000"
         self.radius = 15
         self.speed = random.randint(1, 2)
         self.speed = 1.5 if self.speed == 2 else 1     # da sonst die Gegner deutlich schneller als der Spieler sind wodurch es sehr schwer wird zu überleben
@@ -177,6 +177,9 @@ class Enemy:
         self.health = (3 * wave_count / 2) if self.speed == 1 else (2 * wave_count / 2)
         if int(self.health) == self.health: self.max_health = self.health = int(self.health)
         else: self.max_health = int(self.health) + 1
+
+        self.sprite = pg.image.load("enemy_fast.png" if self.speed == 1.5 else "enemy_slow.png")    # lädt die entsprechende Gegnerfigur
+        self.sprite = pg.transform.scale(self.sprite, (40,40))                                      # skalliert die Gegnerfigur
 
         self.last_hitted = time.time()                  # Zeit zum Überprüfen, ob dem Gegner Schaden zugefügt werden kann
         self.min_damage_cooldown = max_FPS / 240        # alle 0.25 sekunden kann dem Gegner geschadet werden
@@ -190,7 +193,7 @@ class Enemy:
     def draw(self): 
         '''stellt den Gegner auf dem Screen dar''' 
         self.healthbar.draw(*self.pos, self.health, self.screen)             # zeichnen der Healthbar auf de Screen
-        pg.draw.circle(self.screen, self.color, self.pos, self.radius)       # zeichnen des Gegners auf den Screen
+        self.screen.blit(self.sprite, [self.pos[0]-self.sprite.get_width()/2, self.pos[1]-self.sprite.get_height()/2]) # zeichnen des Gegners auf den Screen
 
 
     def move(self):
@@ -240,8 +243,9 @@ class Player:
         self.level = 0
         self.needed_xp_for_lvl = 0
 
-        self.color = "#0000aa"
         self.radius = 20
+        self.sprite = pg.image.load("dobble_player.png")        # lädt die Spielerfigur
+        self.sprite = pg.transform.scale(self.sprite, (50,50))  # skalliert die Spielerfigur
 
         self.speed = 3
         self.diagonal_speed = self.speed * math.sqrt(2) / 2     # langsamere Teilgeschwindigkeiten für diagonal Laufen, da der Spieler sonst schneller wäre
@@ -280,7 +284,7 @@ class Player:
         lvl_number = self.font.render(f"{self.level}", False, "black")
         self.screen.blit(lvl_number, (90, 114))
 
-        pg.draw.circle(self.screen, self.color, self.pos, self.radius, 4)      # zeichnen des Spielers auf den Screen
+        self.screen.blit(self.sprite, [self.pos[0]-self.sprite.get_width()/2, self.pos[1]-self.sprite.get_height()/2]) # zeichnen des Spielers auf den Screen
 
 
     def move(self):
@@ -328,7 +332,7 @@ class Player:
                 except ZeroDivisionError: prozent_y = 1
 
                 # spielt ein Schussgeräusch ab
-                threading.Thread(target=play_sound, args=["single-pistol-gunshot-33-37187.mp3"]).start() # @ https://pixabay.com/de/sound-effects/search/gunshot/
+                play_sound("single-pistol-gunshot-33-37187.mp3") # @ https://pixabay.com/de/sound-effects/search/gunshot/
 
                 shots.append(Shot([self.pos[0] - (Shot.speed * dx) * i / 2, self.pos[1] - (Shot.speed * dy) * i / 2], 
                                   prozent_x, prozent_y, self.damage, self.screen))  # Erstellung des Schusses (mit versetzung falls der shoot_count != 1)
@@ -342,12 +346,13 @@ class Player:
                 global main_run
                 main_run = False
                 enemies.clear()
+                # spielt ein Todesgeräusch ab
+                pg.mixer.music.fadeout(3000)
+                play_sound("scary-sound-effect-359877.mp3", 1) # @ https://pixabay.com/de/sound-effects/search/damage%20sound/ 
+                
                 Game_over_Menue(self.screen, self.level)
                 lvl_up_count[0] = 0
 
-                # spielt ein Todesgeräusch ab
-                pg.mixer.music.pause()
-                threading.Thread(target=play_sound, args=["scary-sound-effect-359877.mp3"]).start() # @ https://pixabay.com/de/sound-effects/search/damage%20sound/ 
 
 
     def level_up(self):
@@ -393,6 +398,7 @@ class Menue:
 
 
     def ui_handler(self):
+        global run
         self.text()
         pg.display.update()
         time.sleep(self.sleep)                  # verhindert, dass der Spieler den Knopf doppelt drückt oder gedrückt hält und damit eine neue Runde startet
@@ -604,14 +610,12 @@ if __name__=="__main__":
     pg.font.init()                      # Initialisierung des Font Moduls
     pg.mixer.init()
 
-    pg.mixer.music.load("gladiateur-de-retour-du-combat-284537.mp3") # @ https://pixabay.com/de/music/search/roman/
-    pg.mixer.music.play(loops=100000)
-
     run = True
     while run:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
                                 # damit das Programm auch nach Beenden einer Runde nicht geschlossen wird
         
-        pg.mixer.music.unpause()
+        pg.mixer.music.load("gladiateur-de-retour-du-combat-284537.mp3") # @ https://pixabay.com/de/music/search/roman/
+        pg.mixer.music.play(loops=100000, fade_ms=3000)
 
         StartMenue(screen)      # Erstellt den Startbildschirm  vor Beginn jeder Runde
 
