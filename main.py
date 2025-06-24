@@ -1,4 +1,4 @@
-import math, time, random, pygame as pg
+import math, time, random, threading, pygame as pg 
 
 # Diese classes sind nur für das Typing notwendig
 class Player:...
@@ -9,6 +9,12 @@ class Game_over_Menue(Menue):...
 
 
 
+def play_sound(file_name:str):
+    """Spielt einen Geräusch ab"""
+    print(file_name)
+    pg.mixer.Channel(1).set_volume(0.1)
+    pg.mixer.Channel(1).play(pg.mixer.Sound(file_name))
+    
 
 def collision(pos1:list[int], pos2:list[int], radius1:int, radius2:int)->bool: 
     """Überprüft, ob 2 Kreise kollidieren"""
@@ -320,6 +326,10 @@ class Player:
                 except ZeroDivisionError: prozent_x = 1
                 try: prozent_y = dy / (abs(dx) + abs(dy))
                 except ZeroDivisionError: prozent_y = 1
+
+                # spielt ein Schussgeräusch ab
+                threading.Thread(target=play_sound, args=["single-pistol-gunshot-33-37187.mp3"]).start() # @ https://pixabay.com/de/sound-effects/search/gunshot/
+
                 shots.append(Shot([self.pos[0] - (Shot.speed * dx) * i / 2, self.pos[1] - (Shot.speed * dy) * i / 2], 
                                   prozent_x, prozent_y, self.damage, self.screen))  # Erstellung des Schusses (mit versetzung falls der shoot_count != 1)
 
@@ -333,6 +343,11 @@ class Player:
                 main_run = False
                 enemies.clear()
                 Game_over_Menue(self.screen, self.level)
+                lvl_up_count[0] = 0
+
+                # spielt ein Todesgeräusch ab
+                pg.mixer.music.pause()
+                threading.Thread(target=play_sound, args=["scary-sound-effect-359877.mp3"]).start() # @ https://pixabay.com/de/sound-effects/search/damage%20sound/ 
 
 
     def level_up(self):
@@ -385,6 +400,7 @@ class Menue:
         while self.menue_run:                   # Menü loop
             self.screen.fill(self.bg)
             for event in pg.event.get():        # erfasst die Eingabe des Controllers
+                if event.type==pg.QUIT: run = False
                 if event.type==pg.KEYDOWN and event.key==pg.K_f: self.pressed()
                 if event.type==pg.KEYDOWN and event.key==pg.K_w: self.key_check["w"] = True  # Speicherung der Eingaben in den Speicher
                 if event.type==pg.KEYDOWN and event.key==pg.K_s: self.key_check["s"] = True
@@ -416,11 +432,9 @@ class StartMenue(Menue):
         self.img = pg.transform.scale(self.img, (screen.get_width(), screen.get_height()))  # skaliert das Bild auf die Größe des Bildschirms
 
         self.quots = [                                  # Spruch liste
-            "Manche Gegner sind buggy. Denk nicht drüber nach!",
             "Beweg dich um zu überleben.",
             "0% KI, 100% Verzweiflung",
             "Wir hätten was einfacheres machen sollen.",
-            "Wir brauchen 15 Punkte bitti ♥️.",
             "TPA Original Production",
             "Folg uns auf GitHub: 'HinoopDev' und 'Jojofallguy'",
             "They eat our dogs.",
@@ -572,7 +586,6 @@ if __name__=="__main__":
                 "maxHP ++": ["Fügt 2 Leben zu","deinem maximalen","Leben hinzu."],
                 "Schaden +": ["Fügt 0.5 mehr","Schaden den","Gegnern zu."],
                 "Schaden ++": ["Fügt 1 mehr","Schaden den","Gegnern zu."],
-#                "+1 Schuss": ["Es wird 1","Schuss mehr","abgefeuert."],        # dabei erscheinen die Schüsse willkürlich
                 "Heilung": ["Regeneriert", "deine Leben."],
                 "IAS": ["Erhöht die","Angriffs-","geschwindigkeit"]}
     key_check = {"w":False,"s":False,"a":False,"d":False}       # Eingabespeicher
@@ -589,9 +602,16 @@ if __name__=="__main__":
     pg.mouse.set_visible(False)         # versteckt den Cursor
 
     pg.font.init()                      # Initialisierung des Font Moduls
+    pg.mixer.init()
 
-    while True:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
+    pg.mixer.music.load("gladiateur-de-retour-du-combat-284537.mp3") # @ https://pixabay.com/de/music/search/roman/
+    pg.mixer.music.play(loops=100000)
+
+    run = True
+    while run:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
                                 # damit das Programm auch nach Beenden einer Runde nicht geschlossen wird
+        
+        pg.mixer.music.unpause()
 
         StartMenue(screen)      # Erstellt den Startbildschirm  vor Beginn jeder Runde
 
@@ -644,3 +664,4 @@ if __name__=="__main__":
 
             wave_count += 1
 pg.display.quit()               # schließt den Screen und beendet das Programm
+pg.mixer.music.unload()
