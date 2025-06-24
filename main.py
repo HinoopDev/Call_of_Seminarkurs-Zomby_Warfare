@@ -587,85 +587,90 @@ class Game_over_Menue(Menue):
 
 
 
-if __name__=="__main__":
-    upgrades = {"maxHP +": ["Fügt 1 Leben zu","deinem maximalen","Leben hinzu."],
-                "maxHP ++": ["Fügt 2 Leben zu","deinem maximalen","Leben hinzu."],
-                "Schaden +": ["Fügt 0.5 mehr","Schaden den","Gegnern zu."],
-                "Schaden ++": ["Fügt 1 mehr","Schaden den","Gegnern zu."],
-                "Heilung": ["Regeneriert", "deine Leben."],
-                "IAS": ["Erhöht die","Angriffs-","geschwindigkeit"]}
-    key_check = {"w":False,"s":False,"a":False,"d":False}       # Eingabespeicher
-    GRAS = "#44aa44"
-    max_FPS = 60                                                # maximal mögliche Bildrate
+if __name__=="__main__":    # Programm Startpunkt
+    try:
+        upgrades = {"maxHP +": ["Fügt 1 Leben zu","deinem maximalen","Leben hinzu."],
+                    "maxHP ++": ["Fügt 2 Leben zu","deinem maximalen","Leben hinzu."],
+                    "Schaden +": ["Fügt 0.5 mehr","Schaden den","Gegnern zu."],
+                    "Schaden ++": ["Fügt 1 mehr","Schaden den","Gegnern zu."],
+                    "Heilung": ["Regeneriert", "deine Leben."],
+                    "IAS": ["Erhöht die","Angriffs-","geschwindigkeit"]}
+        key_check = {"w":False,"s":False,"a":False,"d":False}       # Eingabespeicher
+        GRAS = "#44aa44"
+        max_FPS = 60                                                # maximal mögliche Bildrate
 
-    pg.init()                                                   # startet pygame
-    screen = pg.display.set_mode(flags=pg.FULLSCREEN)           # Erstellung des Screens
-    pg.display.set_caption(
-        "Call of Seminarkurs: Zomby Warfare")
-    screen.fill(GRAS)
-    clock = pg.time.Clock()             # Initialisierung der FPSbegrenzung
+        pg.init()                                                   # startet pygame
+        screen = pg.display.set_mode(flags=pg.FULLSCREEN)           # Erstellung des Screens
+        pg.display.set_caption(
+            "Call of Seminarkurs: Zomby Warfare")
+        screen.fill(GRAS)
+        clock = pg.time.Clock()             # Initialisierung der FPSbegrenzung
 
-    pg.mouse.set_visible(False)         # versteckt den Cursor
+        pg.mouse.set_visible(False)         # versteckt den Cursor
 
-    pg.font.init()                      # Initialisierung des Font Moduls
-    pg.mixer.init()
+        pg.font.init()                      # Initialisierung des Font Moduls
+        pg.mixer.init()
 
-    run = True
-    while run:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
-                                # damit das Programm auch nach Beenden einer Runde nicht geschlossen wird
-        
-        pg.mixer.music.load("gladiateur-de-retour-du-combat-284537.mp3") # @ https://pixabay.com/de/music/search/roman/
-        pg.mixer.music.play(loops=100000, fade_ms=3000)
+        bg_img = pg.transform.scale(pg.image.load("bg.png"), (screen.get_width(), screen.get_height()))   # lädt das Hintergrundbild und skalliert es
 
-        StartMenue(screen)      # Erstellt den Startbildschirm  vor Beginn jeder Runde
+        run = True
+        while run:                 # diese Schleife wird beim Demonstrieren nicht geschlossen, 
+                                    # damit das Programm auch nach Beenden einer Runde nicht geschlossen wird
+            
+            pg.mixer.music.load("gladiateur-de-retour-du-combat-284537.mp3") # @ https://pixabay.com/de/music/search/roman/
+            pg.mixer.music.play(loops=100000, fade_ms=3000)
 
-        player = Player(screen)                                                 # Erstellung des Spielers
-        shots:list[Shot] = []; enemies:list[Enemy] = [];drops:list[Drop] = []   # Erstellung der Schuss-, Gegner- und Droplisten 
+            StartMenue(screen)      # Erstellt den Startbildschirm  vor Beginn jeder Runde
 
-        wave_count = 1
-        main_run = True
-        killed_enemies = [0]        # Die Anzahl getöteter Gegner ist in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
-        lvl_up_count = [0]          # Die Anzahl an Level-Ups ist in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
-        while main_run:             # Spielschleife
+            player = Player(screen)                                                 # Erstellung des Spielers
+            shots:list[Shot] = []; enemies:list[Enemy] = [];drops:list[Drop] = []   # Erstellung der Schuss-, Gegner- und Droplisten 
 
-            for _ in range(int(math.sqrt(wave_count * 4) * 5)):    # für die Gegeranzahl wird eine Wurzelfunktion verwendet, damit die Anzahl nicht zu groß wrid
-                enemies.append(Enemy([random.randint(0, screen.get_width()), random.randint(0, screen.get_height())], screen, player))  # Erstellung der Gegner
-                
-            while len(enemies) != 0:        # Wellenschleife
-                screen.fill(GRAS)               # Bildschirm Zurücksetzung nach jedem Durchlauf
-                clock.tick(max_FPS)             # Bildschirm der maximalen FPS, damit das Spiel nicht bei anderer Hardware zu schnell geht
+            wave_count = 1
+            main_run = True
+            killed_enemies = [0]        # Die Anzahl getöteter Gegner ist in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
+            lvl_up_count = [0]          # Die Anzahl an Level-Ups ist in einer Liste gespeichert, um sie von jedem Punkt im Programm zu verändern
+            while main_run:             # Spielschleife
 
-                for event in pg.event.get():    # Screen Event handler, damit das Programm nicht freezed
-                    if event.type==pg.QUIT: main_run = False                                # überprüt ob das Spiel geschlossen weren soll
-                    if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # überprüft, welche Eingaben für die Spielerbewegung getätigt werden
-                    if event.type==pg.KEYDOWN and event.key==pg.K_s: key_check["s"] = True  # und Speicherung in den Speicher
-                    if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
-                    if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
-                    if event.type==pg.KEYDOWN and event.key==pg.K_f: StartMenue(screen, False)  # Pause
+                for _ in range(int(math.sqrt(wave_count * 4) * 5)):    # für die Gegeranzahl wird eine Wurzelfunktion verwendet, damit die Anzahl nicht zu groß wrid
+                    enemies.append(Enemy([random.randint(0, screen.get_width()), random.randint(0, screen.get_height())], screen, player))  # Erstellung der Gegner
+                    
+                while len(enemies) != 0:        # Wellenschleife
+                    screen.fill(GRAS)               # Bildschirm Zurücksetzung nach jedem Durchlauf
+                    screen.blit(bg_img, [0,0])
+                    clock.tick(max_FPS)             # Bildschirm der maximalen FPS, damit das Spiel nicht bei anderer Hardware zu schnell geht
 
-                    if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False       # 'Löscht' die Eingaben aus dem Speicher
-                    if event.type==pg.KEYUP and event.key==pg.K_s: key_check["s"] = False
-                    if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
-                    if event.type==pg.KEYUP and event.key==pg.K_d: key_check["d"] = False
+                    for event in pg.event.get():    # Screen Event handler, damit das Programm nicht freezed
+                        if event.type==pg.QUIT: main_run = False                                # überprüt ob das Spiel geschlossen weren soll
+                        if event.type==pg.KEYDOWN and event.key==pg.K_w: key_check["w"] = True  # überprüft, welche Eingaben für die Spielerbewegung getätigt werden
+                        if event.type==pg.KEYDOWN and event.key==pg.K_s: key_check["s"] = True  # und Speicherung in den Speicher
+                        if event.type==pg.KEYDOWN and event.key==pg.K_a: key_check["a"] = True
+                        if event.type==pg.KEYDOWN and event.key==pg.K_d: key_check["d"] = True
+                        if event.type==pg.KEYDOWN and event.key==pg.K_f: StartMenue(screen, False)  # Pause
 
-                for enemy in enemies: enemy.move(); enemy.draw()    # Bewegt und zeichnet die Gegner
+                        if event.type==pg.KEYUP and event.key==pg.K_w: key_check["w"] = False       # 'Löscht' die Eingaben aus dem Speicher
+                        if event.type==pg.KEYUP and event.key==pg.K_s: key_check["s"] = False
+                        if event.type==pg.KEYUP and event.key==pg.K_a: key_check["a"] = False
+                        if event.type==pg.KEYUP and event.key==pg.K_d: key_check["d"] = False
 
-                for shot in shots: shot.draw(); shot.move()         # Bewegt und zeichnet die Schüsse 
-                # um Fehler zu vermeiden, wenn der Shot zerstört wurde, erst den Shot zeichnen und dann erst bewegen, da er dabei auch gelöscht werden kann
+                    for enemy in enemies: enemy.move(); enemy.draw()    # Bewegt und zeichnet die Gegner
 
-                for drop in drops: drop.draw(); drop.pick_up(player)    # zeichnet den Drop und lässt ihn aufsammeln
+                    for shot in shots: shot.draw(); shot.move()         # Bewegt und zeichnet die Schüsse 
+                    # um Fehler zu vermeiden, wenn der Shot zerstört wurde, erst den Shot zeichnen und dann erst bewegen, da er dabei auch gelöscht werden kann
 
-                player.move()   # Spieler bewegen, zeichen und schießen lassen
-                player.draw()
-                player.shoot()
-                player.level_up()
+                    for drop in drops: drop.draw(); drop.pick_up(player)    # zeichnet den Drop und lässt ihn aufsammeln
 
-                pg.display.update() # alles im Grafikspeicher gespeichertes wird auf den Bildschirm geladen
+                    player.move()   # Spieler bewegen, zeichen und schießen lassen
+                    player.draw()
+                    player.shoot()
+                    player.level_up()
 
-            while lvl_up_count[0] != 0:     # Das Auflevelmenü kommt erst nach einer Welle, da es sonst das Spielgefühl stört
-                Level_up_Menue(screen)      # Um die Belohnung zu bekommen
-                lvl_up_count[0] -= 1
+                    pg.display.update() # alles im Grafikspeicher gespeichertes wird auf den Bildschirm geladen
 
-            wave_count += 1
-pg.display.quit()               # schließt den Screen und beendet das Programm
-pg.mixer.music.unload()
+                while lvl_up_count[0] != 0:     # Das Auflevelmenü kommt erst nach einer Welle, da es sonst das Spielgefühl stört
+                    Level_up_Menue(screen)      # Um die Belohnung zu bekommen
+                    lvl_up_count[0] -= 1
+
+                wave_count += 1
+        pg.display.quit()               # schließt den Screen und beendet das Programm
+        pg.mixer.music.unload()
+    except Exception: ...   # verhindert Fehlernachrichten beim schließen des Spiels
