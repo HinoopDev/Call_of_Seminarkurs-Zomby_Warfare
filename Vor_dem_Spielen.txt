@@ -6,8 +6,15 @@ Diese Tastertureingaben werden von unserem Spiel interpretiert. Wenn Sie den Con
 ohne dass unser Spiel geöffnet ist, kann es passieren, dass in einem geöffnetem Dokument die entsprechenden
 Buchstaben geschrieben werden.
 
+Dieses Spiel hat aufgrund der Intension es dauerhaft laufen zu lassen keine Möglichkeit es mit <alt> + <f4> 
+oder dem Kreuz zu schließen. Daher sollte das Spiel entweder aus einer Entwiklungsumgebung gestartet 
+werden, durch die das Spiel beenden werden kann, oder auf einem Computer, auf dem es möglich ist den 
+Taskmanager zu verwenden, gestartet werden.
+
 ###########################################################################################################
-Sie können um unser Spiel umfassend zu testen daher Ihre normale Tastatur verwenden.
+
+
+Um das Spiel umfassend zu testen, können Sie Ihre normale Tastatur verwenden.
 
 Tastenbelegung:
 * "w" : hoch
@@ -16,4 +23,4 @@ Tastenbelegung:
 * "d" : rechts
 * "f" : Menue verlassen; auswählen
 
-Der Knopf an unserem Controler gibt die Tasteneingabe "f"
+Der Knopf an unserem ESP Controler gibt die Tasteneingabe "f"
